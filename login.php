@@ -1,8 +1,8 @@
 <?php
      require_once "config.php";
-     $con=mysqli_connect($sql_server, $sql_user, $sql_pass, $sql_database);
 
      if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $con=mysqli_connect($sql_server, $sql_user, $sql_pass, $sql_database);
       session_start();
 
       $username = $_POST['username'];
