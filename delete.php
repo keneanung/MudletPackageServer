@@ -40,8 +40,7 @@
     Are you sure your want to delete package <?php echo $_GET["name"]; ?>?
     <form action="delete.php" method="post">
       <input type="hidden" name="name" value="<?php echo $_GET["name"]; ?>" />
-      <input type="submit" value="Delete" />
-      <input type="reset" value="Cancel" />
+      <input type="submit" value="Delete" /> or <a href="administer.php">Cancel.</a>
     </form>
     <?php
 		}
