@@ -1,5 +1,6 @@
 <?php
-$con=mysqli_connect("localhost","","","mudlet-repository");
+require_once "config.php";
+$con=mysqli_connect($sql_server, $sql_user, $sql_pass, $sql_database);
 
 // Check connection
 if (mysqli_connect_errno())
@@ -7,11 +8,11 @@ if (mysqli_connect_errno())
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }
 $result = mysqli_query($con,"SELECT * FROM packages");
+$path = "http://" . $_SERVER["SERVER_NAME"] . dirname($_SERVER["SCRIPT_NAME"]);
 
 if ($_GET["op"]=="json")
   {
     $counter = 0;
-    $path = "http://" . $_SERVER["SERVER_NAME"] . dirname($_SERVER["SCRIPT_NAME"]);
     while($row = mysqli_fetch_assoc($result))
       {
         if (count(glob($row["name"].".*")) == 1)
@@ -25,13 +26,17 @@ if ($_GET["op"]=="json")
      echo json_encode($outer);
   }else{
 ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
   <head>
     <title>Mudlet repository listing</title>
   </head>
   <body>
+    To upload new packages or manage your packages, please <a href="<?php echo $path."/login.php"; ?>">log in</a> or register.<br/>
+    <br/>
     <table>
-      <tr><td>Package name</td><td>Version</td><td>Description</td></tr>
+      <tr><td>Package name</td><td>Version</td><td>Description</td><td>Author</td></tr>
 <?php
     while($row = mysqli_fetch_array($result))
       {
@@ -41,6 +46,7 @@ if ($_GET["op"]=="json")
         echo "<td>" . $row['name'] . "</td>";
         echo "<td>" . $row['version'] . "</td>";
         echo "<td>" . $row['description'] . "</td>";
+        echo "<td>" . $row['author'] . "</td>";
 ?>
       </tr>
 <?php

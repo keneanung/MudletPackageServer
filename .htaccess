@@ -1,0 +1,5 @@
+<Files config.php>
+Order allow,deny
+Allow from localhost
+Deny from all
+</Files>
