@@ -28,6 +28,8 @@
 			$count = mysqli_stmt_affected_rows($stmt);
 			if ($count == 1) {
 				echo "Package successfully deleted.";
+        $files = glob($_POST["name"].".*");
+        unlink($files[0]);
 			}else{
 				echo "Couldn't delete package. Please make sure you used the right package name and are the author.";
 			}

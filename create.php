@@ -43,22 +43,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $name_valid = false;
     } else {
       $stmt = mysqli_prepare($con, "INSERT INTO packages (name, version, description, author) VALUES (?, ?, ?, ?)");
-      if (! $stmt) {
-          echo mysqli_errno();
-        exit;
+      if (!$stmt) {
+        echo mysqli_errno();
+        exit ;
       }
       mysqli_stmt_bind_param($stmt, "ssss", $_POST["name"], $_POST["version"], $_POST["description"], $_SESSION["username"]);
       $db_success = mysqli_stmt_execute($stmt);
       if ($db_success) {
-        $move_success = move_uploaded_file($_FILES['file']['tmp_name'], $_POST["name"].".dat");
+        $move_success = move_uploaded_file($_FILES['file']['tmp_name'], $_POST["name"] . ".dat");
       }
     }
   }
 
   if ($name_valid && $version_valid && $description_valid && $file_valid && $db_success && $move_success) {
-
-    $hostname = $_SERVER['HTTP_HOST'];
-    $path = dirname($_SERVER['PHP_SELF']);
 
     if ($_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1') {
       if (php_sapi_name() == 'cgi') {
@@ -68,7 +65,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       }
     }
 
+    $hostname = $_SERVER['HTTP_HOST'];
+    $path = dirname($_SERVER['PHP_SELF']);
     header('Location: http://' . $hostname . ($path == '/' ? '' : $path) . '/administer.php');
+    exit ;
   }
 }
 ?>
@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (!$db_success) {
     echo "Database error. Please try again or contact the administrator.";
-  }elseif(!$move_success) {
+  } elseif (!$move_success) {
     echo "Error while creating the file. Please try again or contact the administrator.";
   }
 
