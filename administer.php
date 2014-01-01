@@ -21,7 +21,7 @@ mysqli_stmt_bind_result($stmt, $name, $version, $description);
  </head>
  <body>
   <h1>Here you can administer your packages.</h1>
-  <p>Create a new package <a href="create.php">here</a>.</p><p align="left">You can also <a href="logout.php">log off</a>.</p>
+  <p>Create a new package <a href="create.php?mode=create">here</a>.</p><p align="left">You can also <a href="logout.php">log off</a>.</p>
     <table>
       <tr><td>Package name</td><td>Version</td><td>Description</td><td>Actions</td></tr>
 <?php
@@ -34,7 +34,7 @@ mysqli_stmt_bind_result($stmt, $name, $version, $description);
         echo "<td>" . $version . "</td>";
         echo "<td>" . $description . "</td>";
 ?>
-        <td><a href="delete.php?name=<?php echo $name; ?>">Delete package</a> <a href="change.php?name=<?php echo $name; ?>">Modify Package</a></td>
+        <td><a href="delete.php?name=<?php echo $name; ?>">Delete package</a> <a href="create.php?name=<?php echo $name; ?>&mode=modify">Modify Package</a></td>
       </tr>
 <?php
        }

@@ -17,9 +17,14 @@ if ($_GET["op"]=="json")
       {
         if (count(glob($row["name"].".*")) == 1)
           {
+            $entry = array();
+            $entry["name"] = $row["name"];
+            $entry["version"] = $row["version"];
+            $entry["description"] = $row["description"];
+            $entry["author"] = $row["author"];
             $fileName =  glob($row["name"] . ".*");
-            $row["url"] = $path . "/" . $fileName[0];
-            $outer[$counter] = $row;
+            $entry["url"] = $path . "/" . $fileName[0];
+            $outer[$counter] = $entry;
             $counter++;
           }
        }

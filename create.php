@@ -6,8 +6,15 @@ $name_valid = true;
 $version_valid = true;
 $description_valid = true;
 $file_valid = TRUE;
-$db_success;
-$move_success;
+$db_success = TRUE;
+$move_success = TRUE;
+$con = mysqli_connect($sql_server, $sql_user, $sql_pass, $sql_database);
+
+// Check connection
+if (mysqli_connect_errno()) {
+  echo "Failed to connect to MySQL: " . mysqli_connect_error();
+  exit ;
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (!(strlen($_POST["name"]) > 0 && strlen($_POST["name"]) < 50 && preg_match("/^\w+$/", $_POST["name"]) == 1)) {
@@ -25,29 +32,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $file_valid = FALSE;
   }
 
-  if ($name_valid && $version_valid && $description_valid) {
-    $con = mysqli_connect($sql_server, $sql_user, $sql_pass, $sql_database);
-
-    // Check connection
-    if (mysqli_connect_errno()) {
-      echo "Failed to connect to MySQL: " . mysqli_connect_error();
-      exit ;
-    }
+  if ($name_valid && $version_valid && $description_valid && $file_valid) {
     $stmt = mysqli_prepare($con, "SELECT count(*) FROM packages WHERE name = ?");
     mysqli_stmt_bind_param($stmt, "s", $_POST["name"]);
     mysqli_execute($stmt);
     mysqli_stmt_bind_result($stmt, $count);
     mysqli_stmt_fetch($stmt);
     mysqli_stmt_close($stmt);
-    if ($count > 0) {
+    if (!(($count == 1 && $_POST["mode"] == "modify") || ($count == 0 && $_POST["mode"] == "create"))) {
       $name_valid = false;
     } else {
-      $stmt = mysqli_prepare($con, "INSERT INTO packages (name, version, description, author) VALUES (?, ?, ?, ?)");
+      $stmt_string = $_POST["mode"] == "modify" ? "UPDATE packages SET version = ?, description = ?, author = ? WHERE name = ?" : "INSERT INTO packages (version, description, author, name) VALUES (?, ?, ?, ?)";
+      $stmt = mysqli_prepare($con, $stmt_string);
       if (!$stmt) {
-        echo mysqli_errno();
+        echo mysqli_stmt_errno($stmt);
         exit ;
       }
-      mysqli_stmt_bind_param($stmt, "ssss", $_POST["name"], $_POST["version"], $_POST["description"], $_SESSION["username"]);
+      mysqli_stmt_bind_param($stmt, "ssss", $_POST["version"], $_POST["description"], $_SESSION["username"], $_POST["name"]);
       $db_success = mysqli_stmt_execute($stmt);
       if ($db_success) {
         $move_success = move_uploaded_file($_FILES['file']['tmp_name'], $_POST["name"] . ".dat");
@@ -80,32 +81,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
  </head>
   <body>
 <?php
+$name_value;
+$version_value;
+$description_value;
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (!$db_success) {
     echo "Database error. Please try again or contact the administrator.";
   } elseif (!$move_success) {
     echo "Error while creating the file. Please try again or contact the administrator.";
   }
-
 }
+if ($_SERVER["REQUEST_METHOD"] == "GET" && $_GET["mode"] == "modify") {
+  $name_value = $_GET["name"];
+  $stmt = mysqli_prepare($con, "SELECT version, description FROM packages WHERE name = ? AND author = ?");
+  if (!$stmt) {
+    echo mysqli_stmt_error($stmt);
+  }
+  mysqli_stmt_bind_param($stmt, "ss", $name_value, $_SESSION["username"]);
+  mysqli_stmt_execute($stmt);
+  mysqli_stmt_store_result($stmt);
+  mysqli_bind_result($stmt, $version_value, $description_value);
+  if (mysqli_stmt_num_rows($stmt) == 1) {
+    mysqli_stmt_fetch($stmt);
+    mysqli_stmt_free_result($stmt);
+  }else {
+      echo "Unexpected number of results retrieved. Please contact the administrator.";
+      mysqli_stmt_free_result($stmt);
+      exit;
+  }
+}
+if ($_SERVER["REQUEST_METHOD"] == "POST"){
+  $name_value = $_POST["name"];
+  $description_value = $_POST["description"];
+}
+$mode_value = $_SERVER["REQUEST_METHOD"] == "GET" ? $_GET["mode"] : $_POST["mode"];
+$version_value = isset($_POST["version"]) ? $_POST["version"] : "1.0.0";
  ?>
     <form action="create.php" method="post" enctype="multipart/form-data">
       <table>
       	<tr>
-          <td>Package name:</td><td><input name="name" type="text" value="<?php echo $_POST["name"] ?>"/></td><td><?php echo $name_valid ? "" : "The name should be less than 50 pure ASCII characters long. Additionally make sure there is no Package with that name yet." ?></td>
+          <td>Package name:</td><td><input name="name" type="text" value="<?php echo $name_value ?>"/></td><td><?php echo $name_valid ? "" : "The name should be less than 50 pure ASCII characters long. Additionally make sure there is no Package with that name yet." ?></td>
         </tr>
         <tr>
-          <td>Package version:</td><td><input name="version" type="text"  value="<?php echo(isset($_POST["version"]) ? $_POST["version"] : "1.0.0"); ?>"/></td><td><?php echo $version_valid ? "" : "The version should be less than 15 characters long and have the format 'd.d.d'." ?></td>
+          <td>Package version:</td><td><input name="version" type="text"  value="<?php echo $version_value ?>"/></td><td><?php echo $version_valid ? "" : "The version should be less than 15 characters long and have the format 'd.d.d'." ?></td>
         </tr>
         <tr>
-           <td>Package description:</td><td><textarea name="description"><?php echo $_POST["description"] ?></textarea></td><td><?php echo $description_valid ? "" : "The description should be less than 120 characters long." ?></td>
+           <td>Package description:</td><td><textarea name="description"><?php echo $description_value ?></textarea></td><td><?php echo $description_valid ? "" : "The description should be less than 120 characters long." ?></td>
         </tr>
         <tr>
         	<td>Package file:</td><td><input type="file" name="file"/></td><td><?php echo $file_valid ? "" : "The file should be less than 20 MB big, and of the filetypes zip, mpackage or xml." ?></td>
         </tr>
       </table>
       <input type="hidden" name="MAX_FILE_SIZE" value="20000000" />
-      <input type="submit" value="Create" /> or <a href="administer.php">Cancel.</a>
+      <input type="hidden" name="mode" value="<?php echo $mode_value; ?>" />
+      <input type="submit" value="Submit" /> or <a href="administer.php">Cancel.</a>
     </form>
   </body>
 </html>
