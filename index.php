@@ -13,6 +13,7 @@ $path = "http://" . $_SERVER["SERVER_NAME"] . dirname($_SERVER["SCRIPT_NAME"]);
 if ($_GET["op"]=="json")
   {
     $counter = 0;
+    $outer = array();
     while($row = mysqli_fetch_assoc($result))
       {
         if (count(glob($row["name"].".*")) == 1)
