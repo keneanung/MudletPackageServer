@@ -39,7 +39,7 @@ if ($_GET["op"]=="json")
     <title>Mudlet repository listing</title>
   </head>
   <body>
-    To upload new packages or manage your packages, please <a href="<?php echo $path."/login.php"; ?>">log in</a> or register.<br/>
+    To upload new packages or manage your packages, please <a href="<?php echo $path."/login.php"; ?>">log in</a> or <a href="register.php">register</a><br/>
     <br/>
     <table>
       <tr><td>Package name</td><td>Version</td><td>Description</td><td>Author</td></tr>

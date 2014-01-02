@@ -11,7 +11,7 @@
       $hostname = $_SERVER['HTTP_HOST'];
       $path = dirname($_SERVER['PHP_SELF']);
 
-      $stmt = mysqli_prepare($con, "SELECT name, password, salt FROM user WHERE  name = ?");
+      $stmt = mysqli_prepare($con, "SELECT name, password, salt FROM user WHERE  name = ? AND verified = 1");
       mysqli_stmt_bind_param($stmt, "s", $username);
       mysqli_stmt_execute($stmt);
       mysqli_stmt_bind_result($stmt, $name, $pass, $salt);
@@ -33,8 +33,7 @@
            }
           }
 
-         header('Location: http://'.$hostname.($path == '/' ? '' :
-$path).'/administer.php');
+         header('Location: http://'.$hostname.($path == '/' ? '' : $path).'/administer.php');
          exit;
          }
         }
@@ -54,7 +53,7 @@ $path).'/administer.php');
 ?>
   <form action="login.php" method="post">
    Username: <input type="text" name="username" /><br />
-   Passwort: <input type="password" name="password" /><br />
+   Password: <input type="password" name="password" /><br />
    <input type="submit" value="Log In" />
   </form>
  </body>
