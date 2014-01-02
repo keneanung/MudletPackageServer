@@ -1,4 +1,7 @@
 <?php
+
+$hostname = $_SERVER['HTTP_HOST'];
+$path = dirname($_SERVER['PHP_SELF']);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   require_once 'config.php';
 
@@ -26,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
   $verify_string = urlencode($verify_string);
   $safe_email = urlencode($email);
-  $verify_url = "http://schova.de/mudlet-repository/verify-user.php";
+  $verify_url = "http://" . $hostname . ($path == '/' ? '' : $path) . "/verify-user.php";
   $mail_body = <<<_MAIL_
 To $name:
 Please click on the following link to verify your account creation:
@@ -35,9 +38,6 @@ $verify_url?email=$safe_email&verify_string=$verify_string
 
 If you do not verify your account in the next seven days, it will be deleted.
 _MAIL_;
-
-  $hostname = $_SERVER['HTTP_HOST'];
-  $path = dirname($_SERVER['PHP_SELF']);
 
   mail($email, "User Verification", $mail_body, "FROM: noreply@$hostname");
   //print "$email, $mail_body";
