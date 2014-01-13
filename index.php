@@ -23,8 +23,9 @@ if ($_GET["op"]=="json")
             $entry["version"] = $row["version"];
             $entry["description"] = $row["description"];
             $entry["author"] = $row["author"];
-            $fileName =  glob($row["name"] . ".*");
+            $fileName =  glob($row["name"] . ".dat");
             $entry["url"] = $path . "/" . $fileName[0];
+            $entry["extension"] = $row["extension"];
             $outer[$counter] = $entry;
             $counter++;
           }
