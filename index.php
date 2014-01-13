@@ -16,7 +16,7 @@ if ($_GET["op"]=="json")
     $outer = array();
     while($row = mysqli_fetch_assoc($result))
       {
-        if (count(glob($row["name"].".*")) == 1)
+        if (count(glob($row["name"].".*")) > 0)
           {
             $entry = array();
             $entry["name"] = $row["name"];
