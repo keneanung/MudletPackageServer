@@ -1,0 +1,40 @@
+body{
+	background-color: #a9af83;
+	font: normal 100% Tahoma, Ubuntu, sans-serif;
+}
+
+a{
+	color: #d9682b
+}
+
+div{
+	line-height: 30px;
+	padding: 3px;
+}
+
+.left{
+	float: left;
+}
+
+.center{
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#login-form{
+	width: 275px
+}
+
+.box{
+	width: 75%;
+	border-color: #70754a;
+	border-style: solid;
+	border-radius: 20px;
+	background-color: #b1b979;
+	margin-top: 75px;
+}
+
+.error-message{
+	color: red;
+	font-weight: bold;
+}
