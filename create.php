@@ -42,13 +42,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!(($count == 1 && $_POST["mode"] == "modify") || ($count == 0 && $_POST["mode"] == "create"))) {
       $name_valid = false;
     } else {
-      $stmt_string = $_POST["mode"] == "modify" ? "UPDATE packages SET version = ?, description = ?, author = ? WHERE name = ?" : "INSERT INTO packages (version, description, author, name) VALUES (?, ?, ?, ?)";
+      $stmt_string = $_POST["mode"] == "modify" ? "UPDATE packages SET version = ?, description = ?, author = ?, extension = ? WHERE name = ?" : "INSERT INTO packages (version, description, author, extension, name) VALUES (?, ?, ?, ?, ?)";
       $stmt = mysqli_prepare($con, $stmt_string);
       if (!$stmt) {
         echo mysqli_stmt_errno($stmt);
         exit ;
       }
-      mysqli_stmt_bind_param($stmt, "ssss", $_POST["version"], $_POST["description"], $_SESSION["username"], $_POST["name"]);
+      mysqli_stmt_bind_param($stmt, "sssss", $_POST["version"], $_POST["description"], $_SESSION["username"], $extension, $_POST["name"]);
       $db_success = mysqli_stmt_execute($stmt);
       if ($db_success) {
         $move_success = move_uploaded_file($_FILES['file']['tmp_name'], $_POST["name"] . ".dat");
