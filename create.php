@@ -114,8 +114,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
   $name_value = $_POST["name"];
   $description_value = $_POST["description"];
 }
+$name_value = isset($name_value)?$name_value:"";
 $mode_value = $_SERVER["REQUEST_METHOD"] == "GET" ? $_GET["mode"] : $_POST["mode"];
 $version_value = isset($_POST["version"]) ? $_POST["version"] : "1.0.0";
+$description_value = isset($description_value)?$description_value:"";
  ?>
     <form action="create.php" method="post" enctype="multipart/form-data">
       <table>
