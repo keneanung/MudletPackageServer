@@ -78,6 +78,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
  <head>
   <title>Restricted access</title>
+  <script src="functions.js" type="text/javascript" charset="utf-8"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
  </head>
   <body>
 <?php
@@ -100,7 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && $_GET["mode"] == "modify") {
   mysqli_stmt_bind_param($stmt, "ss", $name_value, $_SESSION["username"]);
   mysqli_stmt_execute($stmt);
   mysqli_stmt_store_result($stmt);
-  mysqli_bind_result($stmt, $version_value, $description_value);
+  mysqli_stmt_bind_result($stmt, $version_value, $description_value);
   if (mysqli_stmt_num_rows($stmt) == 1) {
     mysqli_stmt_fetch($stmt);
     mysqli_stmt_free_result($stmt);
@@ -134,6 +136,9 @@ $description_value = isset($description_value)?$description_value:"";
         	<td>Package file:</td><td><input type="file" name="file"/></td><td><?php echo $file_valid ? "" : "The file should be less than 20 MB big, and of the filetypes zip, mpackage or xml." ?></td>
         </tr>
       </table>
+      <div id="dependencies">
+        <input type="button" value="Add dependency" name="AddDependency" onclick="AddDependencyRow();" />
+      </div>
       <input type="hidden" name="MAX_FILE_SIZE" value="20000000" />
       <input type="hidden" name="mode" value="<?php echo $mode_value; ?>" />
       <input type="submit" value="Submit" /> or <a href="administer.php">Cancel.</a>
