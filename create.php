@@ -78,8 +78,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
  <head>
   <title>Restricted access</title>
-  <script src="functions.js" type="text/javascript" charset="utf-8"></script>
+  <script src="functions.js" type="text/javascript" charset="utf-8">  </script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script type="text/javascript">
+        <?php
+    $result = mysqli_query($con, "SELECT name FROM packages");
+    $outer = array();
+    $counter = 0;
+    while ($row = mysqli_fetch_row($result)) {
+      $outer[$counter] = $row[0];
+      $counter++;
+    }
+    $outer_json = json_encode($outer);
+    mysqli_free_result($result);
+    ?>
+    package_json = '<?php echo "$outer_json"; ?>';
+  </script>
  </head>
   <body>
 <?php
@@ -137,7 +151,7 @@ $description_value = isset($description_value)?$description_value:"";
         </tr>
       </table>
       <div id="dependencies">
-        <input type="button" value="Add dependency" name="AddDependency" onclick="AddDependencyRow();" />
+        <input type="button" value="Add dependency" name="AddDependency" onclick="AddDependencyRow(package_json);" />
       </div>
       <input type="hidden" name="MAX_FILE_SIZE" value="20000000" />
       <input type="hidden" name="mode" value="<?php echo $mode_value; ?>" />
