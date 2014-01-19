@@ -152,6 +152,7 @@ $description_value = isset($description_value)?$description_value:"";
       </table>
       <div id="dependencies">
         <input type="button" value="Add dependency" name="AddDependency" onclick="AddDependencyRow(package_json);" />
+        <div>Please give all dependencies, empty boxes are ignored.</div>
       </div>
       <input type="hidden" name="MAX_FILE_SIZE" value="20000000" />
       <input type="hidden" name="mode" value="<?php echo $mode_value; ?>" />
