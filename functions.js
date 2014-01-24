@@ -3,12 +3,12 @@
  */
 function AddDependencyRow(package_json){
 	var dependencySelectors = $('select[name="dependencyName[]"]').length;
-	var html = $('<div></div>').append('Please choose the dependency: ');
-	var select = $('<select></select>').attr("name", "dependencyName[]").attr('onchange', 'checkSelectedValue(' + dependencySelectors + ')');
-	$(select).append('<option></option>');
+	var html = $('<div />').append('Please choose the dependency: ');
+	var select = $('<select />').attr("name", "dependencyName[]").attr('onchange', 'checkSelectedValue(' + dependencySelectors + ')');
+	$(select).append('<option />');
 	var packages = $.parseJSON(package_json);
 	for(var i=0,j=packages.length; i<j; i++){
-		var option = $('<option></optiion>').text(packages[i]);
+		var option = $('<option />').text(packages[i]);
 		$(select).append(option);
 	};
 	$(html).append(select);

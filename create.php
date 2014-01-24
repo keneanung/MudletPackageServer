@@ -16,6 +16,15 @@ if (mysqli_connect_errno()) {
   exit ;
 }
 
+$result = mysqli_query($con, "SELECT name FROM packages");
+$packageNames = array();
+$counter = 0;
+while ($row = mysqli_fetch_row($result)) {
+  $packageNames[$counter] = $row[0];
+  $counter++;
+}
+mysqli_free_result($result);
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (!(strlen($_POST["name"]) > 0 && strlen($_POST["name"]) < 50 && preg_match("/^\w+$/", $_POST["name"]) == 1)) {
     $name_valid = FALSE;
@@ -32,7 +41,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $file_valid = FALSE;
   }
 
-  if ($name_valid && $version_valid && $description_valid && $file_valid) {
+  $dependencies = $_POST["dependencyName"];
+  $dependencies_valid = true;
+  if (isset($dependencies)) {
+    $dependencies = array_unique($dependencies);
+    $empty_found = array_search("", $dependencies);
+    if (is_int($empty_found)) {
+      unset($dependencies[$empty_found]);
+      $dependencies = array_values($dependencies);
+    }
+    $dependencies_intersected = array_intersect($dependencies, $packageNames);
+    if (count($dependencies) != count($dependencies_intersected)) {
+        $dependencies_valid = false;
+    }
+  }
+
+  if ($name_valid && $version_valid && $description_valid && $file_valid && $dependencies_valid) {
     $stmt = mysqli_prepare($con, "SELECT count(*) FROM packages WHERE name = ?");
     mysqli_stmt_bind_param($stmt, "s", $_POST["name"]);
     mysqli_execute($stmt);
@@ -42,6 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!(($count == 1 && $_POST["mode"] == "modify") || ($count == 0 && $_POST["mode"] == "create"))) {
       $name_valid = false;
     } else {
+      mysqli_autocommit($con, FALSE);
       $stmt_string = $_POST["mode"] == "modify" ? "UPDATE packages SET version = ?, description = ?, author = ?, extension = ? WHERE name = ?" : "INSERT INTO packages (version, description, author, extension, name) VALUES (?, ?, ?, ?, ?)";
       $stmt = mysqli_prepare($con, $stmt_string);
       if (!$stmt) {
@@ -50,13 +75,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       }
       mysqli_stmt_bind_param($stmt, "sssss", $_POST["version"], $_POST["description"], $_SESSION["username"], $extension, $_POST["name"]);
       $db_success = mysqli_stmt_execute($stmt);
+      mysqli_stmt_close($stmt);
       if ($db_success) {
         $move_success = move_uploaded_file($_FILES['file']['tmp_name'], $_POST["name"] . ".dat");
+        $stmt = mysqli_prepare($con,"DELETE FROM dependencies WHERE package = ?");
+        mysqli_stmt_bind_param($stmt, "s", $_POST["name"]);
+        $db_success = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+        if ($db_success) {
+            $stmt = mysqli_prepare($con, "INSERT INTO dependencies (package, dependency) VALUES (?, ?)");
+            foreach ($dependencies as $key => $value) {
+                mysqli_stmt_bind_param($stmt, "ss", $_POST["name"], $value);
+                $db_success = mysqli_stmt_execute($stmt);
+                if (!$db_success) {
+                    break;
+                }
+            }
+            mysqli_stmt_close($stmt);
+        }
+      }
+      if ($db_success) {
+          mysqli_commit($con);
+      }else {
+          mysqli_rollback($con);
       }
     }
   }
 
-  if ($name_valid && $version_valid && $description_valid && $file_valid && $db_success && $move_success) {
+  if ($name_valid && $version_valid && $description_valid && $file_valid && $db_success && $move_success && $dependencies_valid) {
 
     if ($_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.1') {
       if (php_sapi_name() == 'cgi') {
@@ -78,21 +124,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
  <head>
   <title>Restricted access</title>
-  <script src="functions.js" type="text/javascript" charset="utf-8">  </script>
+  <script src="functions.js" type="text/javascript" charset="utf-8"></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-  <script type="text/javascript">
-        <?php
-    $result = mysqli_query($con, "SELECT name FROM packages");
-    $outer = array();
-    $counter = 0;
-    while ($row = mysqli_fetch_row($result)) {
-      $outer[$counter] = $row[0];
-      $counter++;
-    }
-    $outer_json = json_encode($outer);
-    mysqli_free_result($result);
+  <script type="text/javascript"><?php
+        $outer_json = json_encode($packageNames);
     ?>
-    package_json = '<?php echo "$outer_json"; ?>';
+    		package_json = '<?php echo "$outer_json"; ?>';
   </script>
  </head>
   <body>
@@ -120,25 +157,25 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && $_GET["mode"] == "modify") {
   if (mysqli_stmt_num_rows($stmt) == 1) {
     mysqli_stmt_fetch($stmt);
     mysqli_stmt_free_result($stmt);
-  }else {
-      echo "Unexpected number of results retrieved. Please contact the administrator.";
-      mysqli_stmt_free_result($stmt);
-      exit;
+  } else {
+    echo "Unexpected number of results retrieved. Please contact the administrator.";
+    mysqli_stmt_free_result($stmt);
+    exit ;
   }
 }
-if ($_SERVER["REQUEST_METHOD"] == "POST"){
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $name_value = $_POST["name"];
   $description_value = $_POST["description"];
 }
-$name_value = isset($name_value)?$name_value:"";
+$name_value = isset($name_value) ? $name_value : "";
 $mode_value = $_SERVER["REQUEST_METHOD"] == "GET" ? $_GET["mode"] : $_POST["mode"];
 $version_value = isset($_POST["version"]) ? $_POST["version"] : "1.0.0";
-$description_value = isset($description_value)?$description_value:"";
+$description_value = isset($description_value) ? $description_value : "";
  ?>
     <form action="create.php" method="post" enctype="multipart/form-data">
       <table>
       	<tr>
-          <td>Package name:</td><td><input name="name" type="text" value="<?php echo $name_value ?>"/></td><td><?php echo $name_valid ? "" : "The name should be less than 50 pure ASCII characters long. Additionally make sure there is no Package with that name yet." ?></td>
+          <td>Package name:</td><td><input name="name" type="text" <?php echo ($mode_value=="modify") ? 'disabled="true"' : ""; ?> value="<?php echo $name_value ?>"/></td><td><?php echo $name_valid ? "" : "The name should be less than 50 pure ASCII characters long. Additionally make sure there is no Package with that name yet." ?></td>
         </tr>
         <tr>
           <td>Package version:</td><td><input name="version" type="text"  value="<?php echo $version_value ?>"/></td><td><?php echo $version_valid ? "" : "The version should be less than 15 characters long and have the format 'd.d.d'." ?></td>

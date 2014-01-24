@@ -26,9 +26,10 @@
             mysqli_stmt_bind_param($stmt,"ss", $_SESSION["username"], $_POST["name"]);
             mysqli_execute($stmt);
 			$count = mysqli_stmt_affected_rows($stmt);
+      mysqli_stmt_close($stmt);
 			if ($count == 1) {
 				echo "Package successfully deleted.";
-        $files = glob($_POST["name"].".*");
+        $files = glob($_POST["name"].".dat");
         unlink($files[0]);
 			}else{
 				echo "Couldn't delete package. Please make sure you used the right package name and are the author.";
