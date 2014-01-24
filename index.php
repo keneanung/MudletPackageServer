@@ -26,6 +26,18 @@ if ($_GET["op"]=="json")
             $fileName =  glob($row["name"] . ".dat");
             $entry["url"] = $path . "/" . $fileName[0];
             $entry["extension"] = $row["extension"];
+            $stmt = mysqli_prepare($con, "SELECT dependency FROM dependencies WHERE package = ?");
+            mysqli_stmt_bind_param($stmt, "s", $row["name"]);
+            mysqli_execute($stmt);
+            mysqli_stmt_bind_result($stmt, $dependencyName);
+            $dependencies = array();
+            $counter2 = 0;
+            while (mysqli_stmt_fetch($stmt)) {
+             $dependencies[$counter2] = array("name" => $dependencyName);
+             $counter2++;
+            }
+            mysqli_stmt_close($stmt);
+            $entry["dependencies"]=$dependencies;
             $outer[$counter] = $entry;
             $counter++;
           }
