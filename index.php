@@ -1,67 +1,46 @@
 <?php
-require_once "config.php";
-$con=mysqli_connect($sql_server, $sql_user, $sql_pass, $sql_database);
+
+use MudletPackageServer\Classes\Package;
+use Symfony\Component\HttpFoundation\Request;
+
+require_once "vendor/autoload.php";
+
+$app = new Silex\Application();
+
+$app->register(new Silex\Provider\TwigServiceProvider(), array(
+    "twig.path" => __DIR__ . "/templates"
+));
+
+$env = getenv('APP_ENV') ?: 'dev';
+$app->register(new Igorw\Silex\ConfigServiceProvider(__DIR__ . "/config/config.json"));
+$app->register(new Igorw\Silex\ConfigServiceProvider(__DIR__ . "/config/$env.json"));
+
+$con=mysqli_connect($app["database"]["server"], $app["database"]["user"], $app["database"]["password"],
+    $app["database"]["database"]);
 
 // Check connection
 if (mysqli_connect_errno())
-  {
+{
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
-  }
-$result = mysqli_query($con,"SELECT * FROM packages");
-$path = "http://" . $_SERVER["SERVER_NAME"] . dirname($_SERVER["SCRIPT_NAME"]);
+}
 
-if ($_GET["op"]=="json")
-  {
-    $counter = 0;
-    $outer = array();
-    while($row = mysqli_fetch_assoc($result))
-      {
-        if (count(glob($row["name"].".*")) > 0)
-          {
-            $entry = array();
-            $entry["name"] = $row["name"];
-            $entry["version"] = $row["version"];
-            $entry["description"] = $row["description"];
-            $entry["author"] = $row["author"];
-            $fileName =  glob($row["name"] . ".dat");
-            $entry["url"] = $path . "/" . $fileName[0];
-            $entry["extension"] = $row["extension"];
-            $outer[$counter] = $entry;
-            $counter++;
-          }
-       }
-     echo json_encode($outer);
-  }else{
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-  <head>
-    <title>Mudlet repository listing</title>
-  </head>
-  <body>
-    To upload new packages or manage your packages, please <a href="<?php echo $path."/login.php"; ?>">log in</a> or <a href="register.php">register</a><br/>
-    <br/>
-    <table>
-      <tr><td>Package name</td><td>Version</td><td>Description</td><td>Author</td></tr>
-<?php
-    while($row = mysqli_fetch_array($result))
-      {
-?>
-      <tr>
-<?php
-        echo "<td>" . $row['name'] . "</td>";
-        echo "<td>" . $row['version'] . "</td>";
-        echo "<td>" . $row['description'] . "</td>";
-        echo "<td>" . $row['author'] . "</td>";
-?>
-      </tr>
-<?php
-       }
-?>
-    </table>
-  </body>
-</html>
-<?php
-  }
-?>
+$app->get("/api/list", function(Request $request) use($app, $con){
+    $packageArray = Package::GetPackages($con);
+    $tmpArray = array();
+    foreach($packageArray as $package){
+        $pkg = $package->toArray();
+        $pkg["author"] = $package->Author->Name;
+        $pkg["url"]    = sprintf("%s://%s%s/packages/%s.dat",
+            $request->getScheme(),  $request->getHost(), $request->getBaseUrl(), $package->Name);
+        $tmpArray[] = $pkg;
+    }
+    return $app->json($tmpArray);
+});
+
+$app->get("/", function() use($app, $con){
+    return $app["twig"]->render("index.twig", array(
+        "packages" => Package::GetPackages($con)
+    ));
+});
+
+$app->run();

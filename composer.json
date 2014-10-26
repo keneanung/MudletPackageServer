@@ -1,0 +1,21 @@
+{
+    "name": "keneanung/mudlet-package-server",
+    "description": "A server to serve packages to the mudlet package manager.",
+    "minimum-stability": "dev",
+    "license": "GPL3",
+    "authors": [
+        {
+            "name": "Florian Scheel",
+            "email": "keneanung@googlemail.com"
+        }
+    ],
+    "require": {
+        "silex/silex": "~1.2",
+        "symfony/twig-bridge": "~2.0",
+        "twig/twig": "~1.5",
+        "igorw/config-service-provider": "~1.2"
+    },
+    "autoload":{
+        "psr-4": {"MudletPackageServer\\" : "./"}
+    }
+}

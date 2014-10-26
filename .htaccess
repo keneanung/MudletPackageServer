@@ -1,5 +1,8 @@
-<Files config.php>
-Order allow,deny
-Allow from localhost
-Deny from all
-</Files>
+<IfModule mod_rewrite.c>
+    Options -MultiViews
+
+    RewriteEngine On
+    RewriteBase /MudletPackageServer
+    RewriteCond %{REQUEST_URI} !packages/.*\.dat$
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>

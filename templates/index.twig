@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <title>Mudlet repository listing</title>
+    </head>
+    <body>
+    To upload new packages or manage your packages, please log in or register.<br/>
+    <br/>
+        <table>
+            <tr><td>Package name</td><td>Version</td><td>Description</td><td>Author</td></tr>
+            {% for package in packages %}
+                <tr>
+                    <td>{{ package.Name }}</td>
+                    <td>{{ package.Version }}</td>
+                    <td>{{ package.Description }}</td>
+                    <td>{{ package.Author.Name }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

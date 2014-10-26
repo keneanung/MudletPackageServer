@@ -1,2 +1,6 @@
 .project
 .settings/
+.idea
+
+vendor
+composer.phar
