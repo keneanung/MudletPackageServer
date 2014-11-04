@@ -1,8 +1,2 @@
 {
-    "database": {
-        "server"   : "localhost",
-        "user"     : "",
-        "password" : "",
-        "database" : "mudlet-repository"
-    }
 }

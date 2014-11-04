@@ -1,0 +1,22 @@
+{
+    "propel": {
+        "database": {
+            "connections": {
+                "mudlet-repository": {
+                    "adapter": "mysql",
+                    "dsn": "mysql:host=localhost;dbname=mudlet-repository",
+                    "user": "",
+                    "password": ""
+                }
+            }
+        },
+        "runtime": {
+            "defaultConnection": "mudlet-repository",
+            "connections"      : ["mudlet-repository"]
+        },
+        "generator": {
+            "defaultConnection": "mudlet-repository",
+            "connections"      : ["mudlet-repository"]
+        }
+    }
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="mudlet-repository" defaultIdMethod="native" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://xsd.propelorm.org/1.6/database.xsd" namespace="MudletPackageServer\Classes\Propel">
+    <table name="dependency">
+        <column name="id" type="integer" primaryKey="true" autoIncrement="true"/>
+        <column name="package" type="varchar" size="50" required="true"/>
+        <column name="dependency" type="varchar" size="50" required="true"/>
+        <foreign-key foreignTable="package" refPhpName="Dependency">
+            <reference local="package" foreign="name"/>
+        </foreign-key>
+        <foreign-key foreignTable="package" refPhpName="Dependant">
+            <reference local="dependency" foreign="name"/>
+        </foreign-key>
+    </table>
+    <table name="package">
+        <column name="name" type="varchar" size="50" primaryKey="true"/>
+        <column name="version" type="varchar" size="15" required="true"/>
+        <column name="description" type="varchar" size="120" required="true"/>
+        <column name="author" type="varchar" size="20" required="true"/>
+        <column name="extension" type="varchar" size="9" required="true"/>
+        <foreign-key foreignTable="user" refPhpName="AuthoredPackage">
+            <reference local="author" foreign="name"/>
+        </foreign-key>
+    </table>
+    <table name="user">
+        <column name="name" type="varchar" size="20" primaryKey="true"/>
+        <column name="email" type="varchar" size="50" required="true"/>
+        <column name="password" type="varchar" size="40" required="true"/>
+        <column name="salt" type="varchar" size="50" required="true"/>
+        <column name="created_on" type="timestamp" required="true"/>
+        <column name="verify_string" type="varchar" size="16" required="true"/>
+        <column name="verified" type="tinyint" required="true"/>
+    </table>
+</database>

@@ -13,7 +13,9 @@
         "silex/silex": "~1.2",
         "symfony/twig-bridge": "~2.0",
         "twig/twig": "~1.5",
-        "igorw/config-service-provider": "~1.2"
+        "igorw/config-service-provider": "~1.2",
+        "propel/propel-service-provider": "~2.0",
+        "symfony/security": "~2.3"
     },
     "autoload":{
         "psr-4": {"MudletPackageServer\\" : "./"}

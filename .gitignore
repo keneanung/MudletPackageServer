@@ -4,3 +4,5 @@
 
 vendor
 composer.phar
+Classes/Propel/Base
+Classes/Propel/Map
