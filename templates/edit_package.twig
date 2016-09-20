@@ -1,0 +1,30 @@
+<html>
+<body>
+<form action="{{ path("edit_package_post", { mode: mode }) }}" method="post" enctype="multipart/form-data">
+    <table>
+        <tr>
+            <td><label>Package name:<br/>
+                    <input name="name" type="text" value="{{ package.Name }}"/>
+            </label></td><td>{{ name_error }}</td>
+        </tr>
+        <tr>
+            <td><label>Package version:<br/>
+                    <input name="version" type="text" value="{{ package.Version }}"/>
+                </label></td><td>{{ version_error }}</td>
+        </tr>
+        <tr>
+            <td><label>Package description:<br/>
+                    <textarea name="description">{{ package.Description }}</textarea>
+                </label></td><td>{{ description_error }}</td>
+        </tr>
+        <tr>
+            <td><label>Package file:<br/>
+                    <input type="file" name="file"/></label></td><td>{{ file_error }}</td>
+        </tr>
+    </table>
+    <input type="hidden" name="MAX_FILE_SIZE" value="20000000" />
+    <input type="hidden" name="mode" value="{{ mode }}" />
+    <input type="submit" value="Submit" /> or <a href="{{ path("administer") }}">Cancel.</a>
+</form>
+</body>
+</html>

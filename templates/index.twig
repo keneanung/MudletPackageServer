@@ -3,8 +3,12 @@
         <title>Mudlet repository listing</title>
     </head>
     <body>
-    To upload new packages or manage your packages, please log in or register.<br/>
-    <br/>
+        {% if not loggedIn %}
+        To upload new packages or manage your packages, please <a href="{{ path("login") }}">log in</a> or <a href="{{ path("register") }}">register</a>.<br/>
+        {% else %}
+        Hi, {{ user }}. You can <a href="{{ path("administer") }}">administer you packages</a> or <a href="{{ path("private_logout") }}">logout</a>
+        {% endif %}
+        <br/>
         <table>
             <tr><td>Package name</td><td>Version</td><td>Description</td><td>Author</td></tr>
             {% for package in packages %}

@@ -17,20 +17,7 @@ if (mysqli_connect_errno()) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  if (!(strlen($_POST["name"]) > 0 && strlen($_POST["name"]) < 50 && preg_match("/^\w+$/", $_POST["name"]) == 1)) {
-    $name_valid = FALSE;
-  }
-  if (!(strlen($_POST["version"]) > 0 && strlen($_POST["version"]) < 15 && preg_match("/^\d+\.\d+\.\d+$/", $_POST["version"]) == 1)) {
-    $version_valid = FALSE;
-  }
-  if (!(strlen($_POST["description"]) > 0 && strlen($_POST["description"]) < 120)) {
-    $description_valid = FALSE;
-  }
-  $extension = substr($_FILES["file"]["name"], strrpos($_FILES["file"]["name"], '.') + 1);
-  $mimetype = $_FILES["file"]["type"];
-  if (!(($extension == "xml" || $extension == "mpackage" || $extension == "zip") && $_FILES["file"]["size"] < 20000000 && ($mimetype == "application/octet-stream" || $mimetype == "text/xml" || $mimetype == "application/zip"))) {
-    $file_valid = FALSE;
-  }
+
 
   if ($name_valid && $version_valid && $description_valid && $file_valid) {
     $stmt = mysqli_prepare($con, "SELECT count(*) FROM packages WHERE name = ?");

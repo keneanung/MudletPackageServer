@@ -1,0 +1,22 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<head>
+    <title>Register user</title>
+</head>
+<body>
+<form action="{{ path("register_post") }}" method="post">
+    <label>
+        Username:
+        <input type="text" name="username"/>
+    </label><br />
+    <label>
+        E-Mail:
+        <input type="text" name="email"/>
+    </label><br />
+    <label>
+        Password:
+        <input type="password" name="password"/>
+    </label><br />
+    <input type="submit" value="Register" />
+</form>
+</body>
+</html>

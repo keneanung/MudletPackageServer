@@ -1,0 +1,15 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<head>
+    <title>Restricted access</title>
+</head>
+<body>
+<form action="{{ path("private_login_check") }}" method="post">
+    {% if error != "" %}
+    {{ error }}<br />
+    {% endif %}
+    <label>Username: <input type="text" name="_username" value="{{ last_username }}"/></label><br />
+    <label>Password: <input type="password" name="_password" /></label><br />
+    <input type="submit" value="Log In" />
+</form>
+</body>
+</html>

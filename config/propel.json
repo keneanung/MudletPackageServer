@@ -5,8 +5,8 @@
                 "mudlet-repository": {
                     "adapter": "mysql",
                     "dsn": "mysql:host=localhost;dbname=mudlet-repository",
-                    "user": "",
-                    "password": ""
+                    "user": "mudlet-repositor",
+                    "password": "VXtMa9KByXZPhyBM"
                 }
             }
         },

@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>Administer your packages</title>
+</head>
+<body>
+    {% if error != "" %}
+        <div>An error occurred: {{ error }}</div>
+    {% endif %}
+    You are logged in as {{ user }}. These are your packages:
+    <table>
+        <thead>
+            <tr>
+                <th>Package Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for package in packages %}
+                <tr><td>{{ package.Name }}</td><td><a href="{{ path("edit_package", {mode: "edit", package: package.Name}) }}"> Edit</a></td><td>Delete</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

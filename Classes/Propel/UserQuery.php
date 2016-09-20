@@ -3,6 +3,10 @@
 namespace MudletPackageServer\Classes\Propel;
 
 use MudletPackageServer\Classes\Propel\Base\UserQuery as BaseUserQuery;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
  * Skeleton subclass for performing query and update operations on the 'user' table.
